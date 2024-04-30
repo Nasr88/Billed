@@ -6,6 +6,7 @@ import USERS_TEST from '../constants/usersTest.js'
 import Logout from "./Logout.js"
 
 export const filteredBills = (data, status) => {
+  // data est défini et non vide 
   return (data && data.length) ?
     data.filter(bill => {
       let selectCondition
@@ -26,7 +27,7 @@ export const filteredBills = (data, status) => {
       return selectCondition
     }) : []
 }
-
+// Cette fonction génère une représentation HTML (sous forme de chaîne de texte) pour afficher une facture (bill) sous forme de carte.
 export const card = (bill) => {
   const firstAndLastNames = bill.email.split('@')[0]
   const firstName = firstAndLastNames.includes('.') ?
@@ -51,11 +52,11 @@ export const card = (bill) => {
     </div>
   `)
 }
-
+// Cette fonction génère une liste de cartes HTML à partir d'un tableau de factures (bills).
 export const cards = (bills) => {
   return bills && bills.length ? bills.map(bill => card(bill)).join("") : ""
 }
-
+// Cette fonction retourne le statut associé à un index donné.
 export const getStatus = (index) => {
   switch (index) {
     case 1:
@@ -75,7 +76,7 @@ export default class {
     $('#arrow-icon1').click((e) => this.handleShowTickets(e, bills, 1))
     $('#arrow-icon2').click((e) => this.handleShowTickets(e, bills, 2))
     $('#arrow-icon3').click((e) => this.handleShowTickets(e, bills, 3))
-    new Logout({ localStorage, onNavigate })
+    new Logout({ localStorage, onNavigate }) /*Logout pour gérer la déconnexion de l'utilisateur*/
   }
 
   handleClickIconEye = () => {
@@ -85,9 +86,9 @@ export default class {
     if (typeof $('#modaleFileAdmin1').modal === 'function') $('#modaleFileAdmin1').modal('show')
   }
 
-  handleEditTicket(e, bill, bills) {
+   handleEditTicket(e, bill, bills) {
     if (this.counter === undefined || this.id !== bill.id) this.counter = 0
-    if (this.id === undefined || this.id !== bill.id) this.id = bill.id
+    if (this.id === undefined || this.id !== bill.id) this.id = bill.id /*pour assosier un id (this.id) lors de premier clic */
     if (this.counter % 2 === 0) {
       bills.forEach(b => {
         $(`#open-bill${b.id}`).css({ background: '#0D5AE5' })
@@ -146,6 +147,7 @@ export default class {
     }
 
     bills.forEach(bill => {
+      $(`#open-bill${bill.id}`).off('click');
       $(`#open-bill${bill.id}`).click((e) => this.handleEditTicket(e, bill, bills))
     })
 
