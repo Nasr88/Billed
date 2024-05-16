@@ -39,6 +39,10 @@ export default class Login {
 
   handleSubmitAdmin = e => {
     e.preventDefault()
+    /* Le problème du login résulte d'un mauvais copier-coller : 
+     le gestionnaire utilisé pour traiter la soumission en tant qu'administrateur 
+     est une copie exacte de celui utilisé pour les employés, 
+     alors que les noms des champs dans le querySelector devraient inclure "admin".*/
     const user = {
       type: "Admin",
       email: e.target.querySelector(`input[data-testid="admin-email-input"]`).value,

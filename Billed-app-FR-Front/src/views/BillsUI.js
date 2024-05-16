@@ -4,7 +4,7 @@ import LoadingPage from "./LoadingPage.js"
 
 import Actions from './Actions.js'
 
-const row = (bill) => {
+const  row = (bill) => {
   return (`
     <tr data-testid="bill">
       <td>${bill.type}</td>
@@ -19,8 +19,14 @@ const row = (bill) => {
     `)
   }
 
+
 const rows = (data) => {
-  return (data && data.length) ? data.sort((a, b) => ((a.date < b.date) ? 1 : -1)).map(bill => row(bill)).join("") : ""
+  return (data && data.length)
+    ? data.sort((a, b) => ((a.date < b.date) ? 1 : -1)) // Trie les factures par date décroissante: 
+    // Si la date de a est inférieure à celle de b, a vient après b.
+      .map(bill => row(bill)) // Génère une ligne HTML pour chaque facture
+      .join("") // Concatène toutes les lignes HTML en une seule chaîne de caractères
+    : "";
 }
 
 export default ({ data: bills, loading, error }) => {

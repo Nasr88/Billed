@@ -3,7 +3,7 @@
  */
 import '@testing-library/jest-dom/extend-expect';
 
-import { screen, waitFor, within } from "@testing-library/dom";
+import { getByRole, screen, waitFor, within } from "@testing-library/dom";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import BillsUI from "../views/BillsUI.js";
@@ -49,21 +49,25 @@ describe("Given I am connected as an employee", () => {
     /*********************************************************************/ 
 
     test("Then clicking on 'New Bill' button should navigate to the NewBill page", () => {
+      // simuler le localStorage du navigateur pour les besoins du test
       Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+      // simuler la présence d'un utilisateur connecté dans l'application
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Employee'
       }));
   
+      // préparer le DOM 
       const root = document.createElement('div');
       root.setAttribute('id', 'root');
       document.body.appendChild(root);
   
       router();
       window.onNavigate(ROUTES_PATH.Bills);
-  
+      // screen.getByRole: testing library , screen fait reference au document entier
       const buttonNewBill = screen.getByRole("button", {
         name: /nouvelle note de frais/i,
       });
+      //simuler un clic sur le bouton
       buttonNewBill.dispatchEvent(new MouseEvent('click'));
   
       const newBillUrl = window.location.href.replace(/^https?:\/\/localhost\//, '');
@@ -72,6 +76,7 @@ describe("Given I am connected as an employee", () => {
 
 
     test("Then all bills are displayed", () => {
+      // simuler le rendu de l'interface utilisateur des factures dans le DOM
       document.body.innerHTML = BillsUI({ data: bills });
 
       const iconEye = screen.getAllByTestId("icon-eye");
@@ -117,7 +122,7 @@ describe("Given I am connected as an employee", () => {
 
       const modale = document.getElementById("modaleFile");
 
-      $.fn.modal = jest.fn(() => modale.classList.add("show")); //mock de la modale Bootstrap
+      $.fn.modal = jest.fn(() => modale.classList.add("show")); //mock de la modale en simulant son ouverture
 
       iconEyes.forEach(iconEye => {
         iconEye.addEventListener("click", () => handleClickIconEye(iconEye));
