@@ -47,6 +47,8 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted)
     })
     /*********************************************************************/ 
+    /*********************************************************************/ 
+    /*********************************************************************/ 
 
     test("Then clicking on 'New Bill' button should navigate to the NewBill page", () => {
       // simuler le localStorage du navigateur pour les besoins du test
@@ -62,7 +64,9 @@ describe("Given I am connected as an employee", () => {
       document.body.appendChild(root);
   
       router();
+      // Simuler la navigation vers la page Bills
       window.onNavigate(ROUTES_PATH.Bills);
+      
       // screen.getByRole: testing library , screen fait reference au document entier
       const buttonNewBill = screen.getByRole("button", {
         name: /nouvelle note de frais/i,
@@ -92,14 +96,18 @@ describe("Given I am connected as an employee", () => {
   ////////////////////////////////////
   describe("When I click on one eye icon", () => {
     test("Then a modal should open", async () => {
+
+      // Définir une fonction onNavigate qui met à jour le contenu de document.body en fonction du chemin fourni
       const onNavigate = pathname => {
         document.body.innerHTML = ROUTES({ pathname });
       };
 
+      // Mocke l'objet localStorage du navigateur pour le test
       Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
       });
-
+      
+      // simuler la présence d'un utilisateur connecté dans l'application
       window.localStorage.setItem(
         "user",
         JSON.stringify({
@@ -107,6 +115,7 @@ describe("Given I am connected as an employee", () => {
         })
       );
 
+      // Crée une instance de la classe Bills avec les dépendances nécessaires
       const billsPage = new Bills({
         document,
         onNavigate,
@@ -114,47 +123,58 @@ describe("Given I am connected as an employee", () => {
         localStorage: window.localStorage,
       });
 
+      // Rendu de l'interface utilisateur des factures dans le DOM en utilisant la fonction BillsUI avec les données des factures.
       document.body.innerHTML = BillsUI({ data: bills });
-
+      // Sélectionne tous les éléments du DOM ayant l'attribut data-testid="icon-eye"
       const iconEyes = screen.getAllByTestId("icon-eye");
-
+      // Mocke la fonction handleClickIconEye de la page des factures pour vérifier qu'elle est appelée
       const handleClickIconEye = jest.fn(billsPage.handleClickIconEye);
-
+      // Sélectionne l'élément du DOM représentant la modale
       const modale = document.getElementById("modaleFile");
-
-      $.fn.modal = jest.fn(() => modale.classList.add("show")); //mock de la modale en simulant son ouverture
+      // Mocke la méthode modal de jQuery pour ajouter la classe "show" à la modale, simulant son ouverture
+      $.fn.modal = jest.fn(() => modale.classList.add("show")); 
 
       iconEyes.forEach(iconEye => {
         iconEye.addEventListener("click", () => handleClickIconEye(iconEye));
-        userEvent.click(iconEye);
+        userEvent.click(iconEye);//Simule un clic sur l'icône "œil" en utilisant userEvent.click
 
-        expect(handleClickIconEye).toHaveBeenCalled();
+        expect(handleClickIconEye).toHaveBeenCalled();//Vérifie que la fonction handleClickIconEye a été appelée
 
-        expect(modale).toHaveClass("show");
+        expect(modale).toHaveClass("show");//Vérifie que la modale est visible
       });
     });
   });
 
   describe("When I went on Bills page and it is loading", () => {
     test("Then, Loading page should be rendered", () => {
+      // Rendu de l'interface utilisateur des factures dans le DOM avec l'état de chargement activé
       document.body.innerHTML = BillsUI({ loading: true });
+      // Vérifie que l'élément contenant le texte "Loading..." est visible à l'écran
       expect(screen.getByText("Loading...")).toBeVisible();
+       // Réinitialise le contenu de `document.body` après le test
       document.body.innerHTML = "";
     });
   });
 
   describe("When I am on Bills page but back-end send an error message", () => {
     test("Then, Error page should be rendered", () => {
+      // Injecte dans le DOM une représentation de l'interface utilisateur des factures avec un état d'erreur
       document.body.innerHTML = BillsUI({ error: "error message" });
+       // Vérifie que l'élément contenant le texte "Erreur" est visible à l'écran
       expect(screen.getByText("Erreur")).toBeVisible();
+      // Réinitialise le contenu de `document.body` après le test
       document.body.innerHTML = "";
     });
   });
 
-  //TODO 6 test d'intégration GET
+  
   describe("When I navigate to Bills Page", () => {
     test("fetches bills from mock API GET", async () => {
+
+      // Espionne la méthode bills du store mocké pour vérifier si elle est appelée.
       jest.spyOn(mockedStore, "bills");
+
+      // Simule la présence d'un utilisateur connecté en tant qu'employé dans l'application.
       Object.defineProperty(window, "localStorage", {
         value: localStorageMock,
       });
@@ -168,7 +188,8 @@ describe("Given I am connected as an employee", () => {
       document.body.append(root);
       router();
       window.onNavigate(ROUTES_PATH.Bills);
-
+      
+      // Attend que le contenu "Mes notes de frais" soit rendu sur la page des factures.
       await waitFor(() => screen.getByText("Mes notes de frais"));
 
       const newBillBtn = await screen.findByRole("button", {
@@ -176,9 +197,10 @@ describe("Given I am connected as an employee", () => {
       });
       const billsTableRows = screen.getByTestId("tbody");
 
-      expect(newBillBtn).toBeTruthy();
-      expect(billsTableRows).toBeTruthy();
-      expect(within(billsTableRows).getAllByRole("row")).toHaveLength(4);
+      expect(mockedStore.bills).toHaveBeenCalled(); 
+      expect(newBillBtn).toBeTruthy();//Vérifie que le bouton "Nouvelle note de frais" est présent sur la page
+      expect(billsTableRows).toBeTruthy();//Vérifie que le tableau des factures est présent sur la page
+      expect(within(billsTableRows).getAllByRole("row")).toHaveLength(4);//Vérifie que le nombre de lignes dans le tableau correspond au nombre attendu de factures 
     });
 
     test("fetches bills from an API and fails with 404 message error", async () => {

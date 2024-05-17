@@ -233,20 +233,27 @@ describe("Given that I am a user on login page", () => {
 describe("Given that I am a user on login page", () => {
   describe("When I fill fields in correct format and I click on employee button Login In", () => {
     test("Then I should be identified as an Employee in app with a defined store", async () => {
+      // remplace le contenu HTML de body par celui généré par la fonction LoginUI()
       document.body.innerHTML = LoginUI();
+      // définir inputData avec des données de test
       const inputData = {
         email: "johndoe@email.com",
         password: "azerty",
       };
 
       const inputEmailUser = screen.getByTestId("employee-email-input");
+
+      // simule le changement de valeur de l'input de l'email en lui attribuant la valeur de l'email définie dans inputData
       fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
+
+      // vérifie si la valeur de l'input de l'email correspond à la valeur définie dans inputData.
       expect(inputEmailUser.value).toBe(inputData.email);
 
       const inputPasswordUser = screen.getByTestId("employee-password-input");
       fireEvent.change(inputPasswordUser, {
         target: { value: inputData.password },
       });
+
       expect(inputPasswordUser.value).toBe(inputData.password);
 
       const form = screen.getByTestId("form-employee");
@@ -254,13 +261,13 @@ describe("Given that I am a user on login page", () => {
       // localStorage should be populated with form data
       Object.defineProperty(window, "localStorage", {
         value: {
-          getItem: jest.fn(() => null),
+          getItem: jest.fn(() => null),//localstorage vide
           setItem: jest.fn(() => null),
         },
-        writable: true,
+        writable: true,// pour pouvoir modifier la propriété localStorage sinon ça sera en lecture seule
       });
 
-      // Mock navigation and store
+      // Mock de la navigation et du store
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
       };
@@ -271,7 +278,8 @@ describe("Given that I am a user on login page", () => {
       const mockStore = {
         login: jest.fn(() => Promise.resolve({ jwt: "mockJwt" })),
       };
-
+      
+      // Création de l'instance de Login et soumission du formulaire
       const login = new Login({
         document,
         localStorage: window.localStorage,
@@ -305,6 +313,7 @@ test("Then I should be identified as an Employee in app without a defined store"
     password: "azerty",
   };
 
+// Simulation de la saisie des données par l'utilisateur
   const inputEmailUser = screen.getByTestId("employee-email-input");
   fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
   expect(inputEmailUser.value).toBe(inputData.email);
@@ -314,6 +323,8 @@ test("Then I should be identified as an Employee in app without a defined store"
     target: { value: inputData.password },
   });
   expect(inputPasswordUser.value).toBe(inputData.password);
+
+
 
   const form = screen.getByTestId("form-employee");
 
